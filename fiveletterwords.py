@@ -35,14 +35,14 @@ print(f"{len(five_letter_words)} words have {word_length} letters")
 
 
 word_sets = []
-
 unique_five_letter_words = []
-for w in five_letter_words:
-    unique_letters = set(w)
+
+for word in five_letter_words:
+    unique_letters = set(word)
     if len(unique_letters) == word_length:
         if unique_letters not in word_sets:
             word_sets.append(unique_letters)
-            unique_five_letter_words.append(w)
+            unique_five_letter_words.append(word)
 
 number_of_words = len(unique_five_letter_words)
 
