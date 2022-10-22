@@ -1,86 +1,63 @@
-import time
+import array
 
-import string
-from typing import Dict
+from multiprocessing import Pool
 
-bitfield_lookup = {c: 1 << i for i, c in enumerate(string.ascii_lowercase)}
-
-
-def word_to_bitfield(word):
-    ret = 0
-    for c in word:
-        ret |= bitfield_lookup[c]
-    return ret
-
-
-start_time = time.time()
+bitfield_lookup = {c: 1 << i for i, c in enumerate('aesiorunltycdhmpgkbwfvzjxq')}
 
 
 def load_words():
+    ret = {}
     with open('./words_alpha.txt') as word_file:
-        valid_words = list(word_file.read().split())
-    return valid_words
+        for word in word_file.read().split():
+            if len(word) != 5: continue
+            bitfield = 0
+            for c in word:
+                bits = bitfield_lookup[c]
+                # all bits need to be unique
+                if bits & bitfield != 0:
+                    break
+                bitfield |= bits
+            else:
+                # only add word if the for loop don't break
+                ret[bitfield] = word
+    return ret
 
+word_sets = load_words()
+all_letters = (1 << 26) - 1
+masks = [(1 << i) - 1 for i in range(1, 27)]
+word_array = array.array('I', sorted(word_sets.keys(), reverse=True))
+array_indexes = [0]
+old_bit_length = 26
+for i, word in enumerate(word_array):
+    if word.bit_length() != old_bit_length:
+        array_indexes.append(i)
+        old_bit_length = word.bit_length()
+by_char = [
+    [
+        word
+        for word in word_sets
+        if word & m == word and word & (m + 1 >> 1)
+    ]
+    for m in masks
+]
+print(len(by_char[25]))
+print(len(word_array[array_indexes[0]: array_indexes[1]]))
 
-english_words = load_words()
+def step(to_compute):
+    for lefts, words in to_compute:
+        for word in by_char[lefts.bit_length() - 1]:
+            if word & lefts == word:
+                yield lefts & ~word, words + (word,)
+def main ():
+    queue = step((all_letters ^ 1 << i, ()) for i in range(26))
+    queue = step(queue)
+    queue = step(queue)
+    queue = step(queue)
+    queue = step(queue)
+    count = 0
+    for _ in queue:
+        count += 1
+    print(count)
 
-print(f"{len(english_words)} words in total")
-
-five_letter_words = [word for word in english_words if len(word) == 5]
-
-print(f"{len(five_letter_words)} words have {5} letters")
-
-word_sets: Dict[int, str] = {}
-
-for word in five_letter_words:
-    unique_letters = set(word)
-    if len(unique_letters) == 5:
-        bitfield = word_to_bitfield(word)
-        if bitfield not in word_sets:
-            word_sets[bitfield] = word
-
-number_of_words = len(word_sets)
-
-print(f"{number_of_words} words have a unique set of {5} letters")
-doublewords = {}
-scanA = 0
-word_sets_items = list(word_sets.items())
-for scanA in range(0, number_of_words - 1):
-    a_bitfield, a_word = word_sets_items[scanA]
-    for scanB in range(scanA + 1, number_of_words):
-        b_bitfield, b_word = word_sets_items[scanB]
-        if a_bitfield & b_bitfield == 0:
-            doublewords[a_bitfield | b_bitfield] = a_word, b_word
-
-number_of_doublewords = len(doublewords)
-
-print(f"we found {number_of_doublewords} combos")
-
-success_found = set()
-
-scanA = 0
-print(f"starting at position {scanA}")
-doublewords_items = list(doublewords.items())
-for scanA in range(0, number_of_doublewords - 1):
-    if scanA % 100000 == 0:
-        print(f"Up to {scanA} of {number_of_doublewords} after {time.time() - start_time} seconds.")
-    a_bitfield, a_words = doublewords_items[scanA]
-    for scanB in range(scanA + 1, number_of_doublewords - 1):
-        b_bitfield, b_words = doublewords_items[scanB]
-        if a_bitfield & b_bitfield == 0:
-            give_it_a_try = a_bitfield | b_bitfield
-            for c_bitfield in word_sets:
-                if give_it_a_try & c_bitfield == 0:
-                    success = frozenset(a_words + b_words + (word_sets[c_bitfield],))
-                    if success not in success_found:
-                        success_found.add(success)
-
-
-print(f"Damn, we had {len(success_found)} successful finds!")
-print(f"That took {time.time() - start_time} seconds")
-
-print("Here they all are:")
-for i in success_found:
-    print(i)
-
-print("DONE")
+if __name__ == '__main__':
+    main()
