@@ -29,11 +29,7 @@ english_words = load_words()
 
 print(f"{len(english_words)} words in total")
 
-five_letter_words = []
-
-for w in english_words:
-    if len(w) == word_length:
-        five_letter_words.append(w)
+five_letter_words = [word for word in english_words if len(word) == 5]
 
 print(f"{len(five_letter_words)} words have {word_length} letters")
 
