@@ -1,13 +1,28 @@
 import time
+
+import string
+from typing import Dict
+
+bitfield_lookup = {c: 1 << i for i, c in enumerate(string.ascii_lowercase)}
+
+
+def word_to_bitfield(word):
+    ret = 0
+    for c in word:
+        ret |= bitfield_lookup[c]
+    return ret
+
 start_time = time.time()
 
 filestub = './'
+
 
 def load_words():
     words_txt = './words_alpha.txt'
     with open(words_txt) as word_file:
         valid_words = list(word_file.read().split())
     return valid_words
+
 
 # number of scanA increases per progress report
 stepgap = 10
@@ -24,32 +39,32 @@ five_letter_words = [word for word in english_words if len(word) == 5]
 
 print(f"{len(five_letter_words)} words have {5} letters")
 
-
-word_sets = []
-unique_five_letter_words = []
+word_sets: Dict[int, str] = {}
 
 for word in five_letter_words:
     unique_letters = set(word)
     if len(unique_letters) == 5:
-        if unique_letters not in word_sets:
-            word_sets.append(unique_letters)
-            unique_five_letter_words.append(word)
+        bitfield = word_to_bitfield(word)
+        if bitfield not in word_sets:
+            word_sets[bitfield] = word
 
-number_of_words = len(unique_five_letter_words)
+number_of_words = len(word_sets)
 
 print(f"{number_of_words} words have a unique set of {5} letters")
-
 doubleword_sets = []
 doubleword_words = []
 
 scanA = 0
-while scanA < number_of_words-1:
+word_sets_items = list(word_sets.items())
+while scanA < number_of_words - 1:
     scanB = scanA + 1
+    a_bitfield, a_word = word_sets_items[scanA]
     while scanB < number_of_words:
-        give_it_a_try = word_sets[scanA] | word_sets[scanB]
-        if len(give_it_a_try) == 5 * 2:
+        b_bitfield, b_word = word_sets_items[scanB]
+        give_it_a_try = a_bitfield | b_bitfield
+        if bin(give_it_a_try).count('1') == 10:
             doubleword_sets.append(give_it_a_try)
-            doubleword_words.append([unique_five_letter_words[scanA], unique_five_letter_words[scanB]])
+            doubleword_words.append([a_word, b_word])
         scanB += 1
     scanA += 1
 
@@ -64,20 +79,22 @@ success_found = []
 scanA = 0
 print(f"starting at position {scanA}")
 
-while scanA < number_of_doublewords-1:
+while scanA < number_of_doublewords - 1:
     if scanA % stepgap == 0:
         print(f"Up to {scanA} of {number_of_doublewords} after {time.time() - start_time} seconds.")
 
     scanB = scanA + 1
+    if scanA > 100:
+        break
     while scanB < number_of_doublewords:
         give_it_a_try = doubleword_sets[scanA] | doubleword_sets[scanB]
-        if len(give_it_a_try) == 5 * 4:
+        if bin(give_it_a_try).count('1') == 20:
             scanC = 0
-            while scanC < number_of_words:
-                final_go = give_it_a_try | word_sets[scanC]
-                if len(final_go) == 5 * 5:
+            for c_bitfield, c_word in word_sets.items():
+                final_go = give_it_a_try | c_bitfield
+                if bin(final_go).count('1') == 25:
                     success = doubleword_words[scanA] + doubleword_words[scanB]
-                    success.append(unique_five_letter_words[scanC])
+                    success.append(c_word)
                     success.sort()
                     if success not in success_found:
                         success_found.append(success)
