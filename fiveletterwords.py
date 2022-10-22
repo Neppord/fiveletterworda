@@ -45,15 +45,12 @@ print(f"{number_of_words} words have a unique set of {5} letters")
 doublewords = {}
 scanA = 0
 word_sets_items = list(word_sets.items())
-while scanA < number_of_words - 1:
-    scanB = scanA + 1
+for scanA in range(0, number_of_words - 1):
     a_bitfield, a_word = word_sets_items[scanA]
-    while scanB < number_of_words:
+    for scanB in range(scanA + 1, number_of_words):
         b_bitfield, b_word = word_sets_items[scanB]
         if a_bitfield & b_bitfield == 0:
             doublewords[a_bitfield | b_bitfield] = a_word, b_word
-        scanB += 1
-    scanA += 1
 
 number_of_doublewords = len(doublewords)
 
@@ -64,13 +61,11 @@ success_found = set()
 scanA = 0
 print(f"starting at position {scanA}")
 doublewords_items = list(doublewords.items())
-while scanA < number_of_doublewords - 1:
+for scanA in range(0, number_of_doublewords - 1):
     if scanA % 100000 == 0:
         print(f"Up to {scanA} of {number_of_doublewords} after {time.time() - start_time} seconds.")
-
-    scanB = scanA + 1
     a_bitfield, a_words = doublewords_items[scanA]
-    while scanB < number_of_doublewords:
+    for scanB in range(scanA + 1, number_of_doublewords - 1):
         b_bitfield, b_words = doublewords_items[scanB]
         if a_bitfield & b_bitfield == 0:
             give_it_a_try = a_bitfield | b_bitfield
@@ -79,8 +74,6 @@ while scanA < number_of_doublewords - 1:
                     success = frozenset(a_words + b_words + (word_sets[c_bitfield],))
                     if success not in success_found:
                         success_found.add(success)
-        scanB += 1
-    scanA += 1
 
 
 print(f"Damn, we had {len(success_found)} successful finds!")
