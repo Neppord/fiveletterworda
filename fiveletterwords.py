@@ -9,12 +9,6 @@ def load_words():
         valid_words = list(word_file.read().split())
     return valid_words
 
-word_length = 5
-
-word_length2 = word_length*2
-word_length4 = word_length2*2
-word_length5 = word_length4 + word_length
-
 # number of scanA increases per progress report
 stepgap = 10
 
@@ -28,7 +22,7 @@ print(f"{len(english_words)} words in total")
 
 five_letter_words = [word for word in english_words if len(word) == 5]
 
-print(f"{len(five_letter_words)} words have {word_length} letters")
+print(f"{len(five_letter_words)} words have {5} letters")
 
 
 word_sets = []
@@ -36,14 +30,14 @@ unique_five_letter_words = []
 
 for word in five_letter_words:
     unique_letters = set(word)
-    if len(unique_letters) == word_length:
+    if len(unique_letters) == 5:
         if unique_letters not in word_sets:
             word_sets.append(unique_letters)
             unique_five_letter_words.append(word)
 
 number_of_words = len(unique_five_letter_words)
 
-print(f"{number_of_words} words have a unique set of {word_length} letters")
+print(f"{number_of_words} words have a unique set of {5} letters")
 
 doubleword_sets = []
 doubleword_words = []
@@ -53,7 +47,7 @@ while scanA < number_of_words-1:
     scanB = scanA + 1
     while scanB < number_of_words:
         give_it_a_try = word_sets[scanA] | word_sets[scanB]
-        if len(give_it_a_try) == word_length2:
+        if len(give_it_a_try) == 5 * 2:
             doubleword_sets.append(give_it_a_try)
             doubleword_words.append([unique_five_letter_words[scanA], unique_five_letter_words[scanB]])
         scanB += 1
@@ -72,16 +66,16 @@ print(f"starting at position {scanA}")
 
 while scanA < number_of_doublewords-1:
     if scanA % stepgap == 0:
-        print(f"Up to {scanA} after {time.time() - start_time} seconds.")
+        print(f"Up to {scanA} of {number_of_doublewords} after {time.time() - start_time} seconds.")
 
     scanB = scanA + 1
     while scanB < number_of_doublewords:
         give_it_a_try = doubleword_sets[scanA] | doubleword_sets[scanB]
-        if len(give_it_a_try) == word_length4:
+        if len(give_it_a_try) == 5 * 4:
             scanC = 0
             while scanC < number_of_words:
                 final_go = give_it_a_try | word_sets[scanC]
-                if len(final_go) == word_length5:
+                if len(final_go) == 5 * 5:
                     success = doubleword_words[scanA] + doubleword_words[scanB]
                     success.append(unique_five_letter_words[scanC])
                     success.sort()
