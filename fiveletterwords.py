@@ -59,13 +59,13 @@ number_of_doublewords = len(doublewords)
 
 print(f"we found {number_of_doublewords} combos")
 
-success_found = []
+success_found = set()
 
 scanA = 0
 print(f"starting at position {scanA}")
 doublewords_items = list(doublewords.items())
 while scanA < number_of_doublewords - 1:
-    if scanA % 10000 == 0:
+    if scanA % 100000 == 0:
         print(f"Up to {scanA} of {number_of_doublewords} after {time.time() - start_time} seconds.")
 
     scanB = scanA + 1
@@ -76,13 +76,12 @@ while scanA < number_of_doublewords - 1:
             give_it_a_try = a_bitfield | b_bitfield
             for c_bitfield in word_sets:
                 if give_it_a_try & c_bitfield == 0:
-                    success = list(a_words + b_words + (word_sets[c_bitfield],))
-                    success.sort()
+                    success = frozenset(a_words + b_words + (word_sets[c_bitfield],))
                     if success not in success_found:
-                        success_found.append(success)
-                        print(success)
+                        success_found.add(success)
         scanB += 1
     scanA += 1
+
 
 print(f"Damn, we had {len(success_found)} successful finds!")
 print(f"That took {time.time() - start_time} seconds")
