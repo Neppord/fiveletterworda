@@ -12,14 +12,12 @@ def word_to_bitfield(word):
         ret |= bitfield_lookup[c]
     return ret
 
-start_time = time.time()
 
-filestub = './'
+start_time = time.time()
 
 
 def load_words():
-    words_txt = './words_alpha.txt'
-    with open(words_txt) as word_file:
+    with open('./words_alpha.txt') as word_file:
         valid_words = list(word_file.read().split())
     return valid_words
 
