@@ -25,7 +25,7 @@ def load_words():
 
 
 # number of scanA increases per progress report
-stepgap = 10
+stepgap = 1000
 
 # I could be clever and write this to be dynamic
 # but for now I'll hard code everything assuming five words
@@ -51,9 +51,7 @@ for word in five_letter_words:
 number_of_words = len(word_sets)
 
 print(f"{number_of_words} words have a unique set of {5} letters")
-doubleword_sets = []
-doubleword_words = []
-
+doublewords = {}
 scanA = 0
 word_sets_items = list(word_sets.items())
 while scanA < number_of_words - 1:
@@ -61,46 +59,37 @@ while scanA < number_of_words - 1:
     a_bitfield, a_word = word_sets_items[scanA]
     while scanB < number_of_words:
         b_bitfield, b_word = word_sets_items[scanB]
-        give_it_a_try = a_bitfield | b_bitfield
-        if bin(give_it_a_try).count('1') == 10:
-            doubleword_sets.append(give_it_a_try)
-            doubleword_words.append([a_word, b_word])
+        if a_bitfield & b_bitfield == 0:
+            doublewords[a_bitfield | b_bitfield] = a_word, b_word
         scanB += 1
     scanA += 1
 
-number_of_doublewords = len(doubleword_sets)
+number_of_doublewords = len(doublewords)
 
 print(f"we found {number_of_doublewords} combos")
-
-counter = 0
 
 success_found = []
 
 scanA = 0
 print(f"starting at position {scanA}")
-
+doublewords_items = list(doublewords.items())
 while scanA < number_of_doublewords - 1:
     if scanA % stepgap == 0:
         print(f"Up to {scanA} of {number_of_doublewords} after {time.time() - start_time} seconds.")
 
     scanB = scanA + 1
-    if scanA > 100:
-        break
+    a_bitfield, a_words = doublewords_items[scanA]
     while scanB < number_of_doublewords:
-        give_it_a_try = doubleword_sets[scanA] | doubleword_sets[scanB]
-        if bin(give_it_a_try).count('1') == 20:
-            scanC = 0
+        b_bitfield, b_words = doublewords_items[scanB]
+        if a_bitfield & b_bitfield == 0:
+            give_it_a_try = a_bitfield | b_bitfield
             for c_bitfield, c_word in word_sets.items():
-                final_go = give_it_a_try | c_bitfield
-                if bin(final_go).count('1') == 25:
-                    success = doubleword_words[scanA] + doubleword_words[scanB]
-                    success.append(c_word)
+                if give_it_a_try & c_bitfield == 0:
+                    success = list(a_words + b_words + (c_word,))
                     success.sort()
                     if success not in success_found:
                         success_found.append(success)
                         print(success)
-                scanC += 1
-            counter += 1
         scanB += 1
     scanA += 1
 
