@@ -16,7 +16,7 @@ word_length4 = word_length2*2
 word_length5 = word_length4 + word_length
 
 # number of scanA increases per progress report
-stepgap = 1000
+stepgap = 10
 
 # Yes, that is the alphabet. In the default order python makes a list in. Weird.
 alphabet = ['f', 'g', 'o', 'q', 't', 'b', 'y', 'h', 'r', 'u', 'j', 'w', 'i', 'p', 's', 'd', 'l', 'e', 'k', 'm', 'n', 'v', 'z', 'c', 'a', 'x']
@@ -29,26 +29,26 @@ english_words = load_words()
 
 print(f"{len(english_words)} words in total")
 
-fl_words = []
+five_letter_words = []
 
 for w in english_words:
     if len(w) == word_length:
-        fl_words.append(w)
+        five_letter_words.append(w)
 
-print(f"{len(fl_words)} words have {word_length} letters")
+print(f"{len(five_letter_words)} words have {word_length} letters")
 
 
 word_sets = []
 
-unique_fl_words = []
-for w in fl_words:
+unique_five_letter_words = []
+for w in five_letter_words:
     unique_letters = set(w)
     if len(unique_letters) == word_length:
         if unique_letters not in word_sets:
             word_sets.append(unique_letters)
-            unique_fl_words.append(w)
+            unique_five_letter_words.append(w)
 
-number_of_words = len(unique_fl_words)
+number_of_words = len(unique_five_letter_words)
 
 print(f"{number_of_words} words have a unique set of {word_length} letters")
 
@@ -62,7 +62,7 @@ while scanA < number_of_words-1:
         give_it_a_try = word_sets[scanA] | word_sets[scanB]
         if len(give_it_a_try) == word_length2:
             doubleword_sets.append(give_it_a_try)
-            doubleword_words.append([unique_fl_words[scanA], unique_fl_words[scanB]])
+            doubleword_words.append([unique_five_letter_words[scanA], unique_five_letter_words[scanB]])
         scanB += 1
     scanA += 1
 
@@ -90,7 +90,7 @@ while scanA < number_of_doublewords-1:
                 final_go = give_it_a_try | word_sets[scanC]
                 if len(final_go) == word_length5:
                     success = doubleword_words[scanA] + doubleword_words[scanB]
-                    success.append(unique_fl_words[scanC])
+                    success.append(unique_five_letter_words[scanC])
                     success.sort()
                     if success not in success_found:
                         success_found.append(success)
