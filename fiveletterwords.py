@@ -22,13 +22,6 @@ def load_words():
     return valid_words
 
 
-# number of scanA increases per progress report
-stepgap = 1000
-
-# I could be clever and write this to be dynamic
-# but for now I'll hard code everything assuming five words
-number_of_sets = 5
-
 english_words = load_words()
 
 print(f"{len(english_words)} words in total")
@@ -72,7 +65,7 @@ scanA = 0
 print(f"starting at position {scanA}")
 doublewords_items = list(doublewords.items())
 while scanA < number_of_doublewords - 1:
-    if scanA % stepgap == 0:
+    if scanA % 10000 == 0:
         print(f"Up to {scanA} of {number_of_doublewords} after {time.time() - start_time} seconds.")
 
     scanB = scanA + 1
@@ -81,9 +74,9 @@ while scanA < number_of_doublewords - 1:
         b_bitfield, b_words = doublewords_items[scanB]
         if a_bitfield & b_bitfield == 0:
             give_it_a_try = a_bitfield | b_bitfield
-            for c_bitfield, c_word in word_sets.items():
+            for c_bitfield in word_sets:
                 if give_it_a_try & c_bitfield == 0:
-                    success = list(a_words + b_words + (c_word,))
+                    success = list(a_words + b_words + (word_sets[c_bitfield],))
                     success.sort()
                     if success not in success_found:
                         success_found.append(success)
