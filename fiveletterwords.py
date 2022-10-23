@@ -19,12 +19,12 @@ def load_words():
     return ret
 
 
-word_sets = load_words()
+word_map = load_words()
 all_letters = (1 << 26) - 1
 by_char = [
     [
         word
-        for word in word_sets
+        for word in word_map
         if word & m == word and word & (m + 1 >> 1)
     ]
     for m in ((1 << i) - 1 for i in range(1, 27))
@@ -46,7 +46,7 @@ def main():
     queue = step(queue)
     count = 0
     for _, words in queue:
-        print(*(word_sets[w] for w in words))
+        print(*(word_map[w] for w in words))
         count += 1
     print(count)
 
