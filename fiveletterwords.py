@@ -46,7 +46,7 @@ def main():
     queue = step(queue)
     count = 0
     for _, words in queue:
-        print(*(word_map[w] for w in words))
+        print(" ".join(word_map[w] for w in words))
         count += 1
     print(count)
 
